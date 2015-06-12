@@ -5,6 +5,6 @@ Download all the accessible files of a particular extention in a web page. Speci
 
 ## Usage
 ```bash
-$ python downloader.py \[url\] \[ext\] \[dst\]
+$ python downloader.py [url] [ext] [dst]
 
 ```
