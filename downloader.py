@@ -1,29 +1,26 @@
 # Author: Yuta Miyake
 # File: downloader.py
 
-from BeautifulSoup import BeautifulSoup as bs
-import urllib2, requests, os, re, sys
+from bs4 import BeautifulSoup as bs
+# from BeautifulSoup import BeautifulSoup as bs
+import urllib2, requests, os, re, sys, urlparse
 
-def downloadFile(path,ext,dst):
+def downloadFile(url,ext,dist = './'):
     """Download all the files of a particular extention in a web page
 
-        Usage: "python downloader.py [url] [ext] [dst]"
+        Usage: "python downloader.py [url] [ext] [dist]"
     """
-    soup = bs(urllib2.urlopen(path))
+    
+    soup = bs(urllib2.urlopen(url))
 
-    filenames = []
+    urls = []
     for link in soup.findAll('a',href=re.compile(".+\."+ext)):
-      filenames.append(link.get('href'))  # tag.get('attr')
-
-    if not os.path.exists(dst):
-       print dst+" is not found"
-       return
+      urls.append(urlparse.urljoin(url, link['href']))  # tag.get('attr')
 
     sizes = []
     total = 0
     founds = []
-    for name in filenames:
-        url = os.path.join(path,name)
+    for url in urls:
         try:
             site = urllib2.urlopen(url)
         except urllib2.HTTPError as e:
@@ -33,29 +30,35 @@ def downloadFile(path,ext,dst):
             size = int(site.headers['content-length'])
             sizes.append(size)
             total += size
-            founds.append(name)
+            founds.append(url)
     if len(founds) <= 0:
         print "\nThere is no %s file that can be accessible." %(ext) 
         return
 
+    # prompt to download
     print "\nTotal size is " + getReadableFileSize(total)
     if raw_input("Are you sure you want to download all the files? [y/n]: ") != "y":
         return
+
+    # create distination if necessary
+    if not os.path.exists(dist):
+        os.mkdir(dist)
+        print dist+" is not found ... creating"
     
     sys.stdout.write("\n")
     ctr = 0
-    for name in founds:
-        url = os.path.join(path,name)
+    for url in founds:
         size = sizes[ctr]
         ctr = ctr + 1
+        name = ""
         print "\rDownloading %s ..." % (url)
 
         # get filename
-        index = name.rfind('/')
+        index = url.rfind('/')
         if index != -1:
-            name = name[index+1:]
+            name = url[index+1:]
 
-        localpath = os.path.join(dst,name)
+        localpath = os.path.join(dist,name)
         response = requests.get(url, stream=True) 
 
         with open(localpath, "wb") as f:
@@ -84,7 +87,9 @@ def getReadableFileSize(bytes):
   
 
 if __name__=='__main__':
-    if len(sys.argv) == 4:
+    if len(sys.argv) == 3:
+        downloadFile(sys.argv[1],sys.argv[2])
+    elif len(sys.argv) == 4:
         downloadFile(sys.argv[1],sys.argv[2],sys.argv[3])
     else:
-        print "Usage python downloader.py [url] [ext] [dst]"
+        print "Usage python downloader.py [url] [ext] [dist]"
