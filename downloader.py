@@ -61,6 +61,14 @@ def downloadFile(url,ext,dist = './'):
         localpath = os.path.join(dist,name)
         response = requests.get(url, stream=True) 
 
+        # change the localpath if it already exists
+        copy = 0
+        temp = localpath.index(ext)
+        while (os.path.exists(localpath)):
+            copy = copy + 1
+            localpath = localpath[:temp-1] + "("+str(copy)+")." + str(ext);
+
+        # writing to the localpath
         with open(localpath, "wb") as f:
             if size is None:
                 f.write(response.content)
