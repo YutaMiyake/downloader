@@ -8,7 +8,7 @@ A downloader.py requires BeautifulSoup4 and requests modules as well as basic mo
 
 ## Usage
 ```bash
-$ python downloader.py [url] [ext] [dist='./']
+$ python downloader.py [url] [ext] [dest='./']
 ```
 
 Example: download every pdf files in a mit online course into pdfs folder

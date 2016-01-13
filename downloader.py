@@ -5,12 +5,12 @@ from bs4 import BeautifulSoup as bs
 # from BeautifulSoup import BeautifulSoup as bs
 import urllib2, requests, os, re, sys, urlparse
 
-def downloadFile(url,ext,dist = './'):
+def downloadFile(url,ext,dest = './'):
     """Download all the files of a particular extention in a web page
 
-        Usage: "python downloader.py [url] [ext] [dist]"
+        Usage: "python downloader.py [url] [ext] [dest]"
     """
-    
+
     soup = bs(urllib2.urlopen(url))
 
     urls = []
@@ -32,7 +32,7 @@ def downloadFile(url,ext,dist = './'):
             total += size
             founds.append(url)
     if len(founds) <= 0:
-        print "\nThere is no %s file that can be accessible." %(ext) 
+        print "\nThere is no %s file that can be accessible." %(ext)
         return
 
     # prompt to download
@@ -40,11 +40,11 @@ def downloadFile(url,ext,dist = './'):
     if raw_input("Are you sure you want to download all the files? [y/n]: ") != "y":
         return
 
-    # create distination if necessary
-    if not os.path.exists(dist):
-        os.mkdir(dist)
-        print dist+" is not found ... creating"
-    
+    # create destination if necessary
+    if not os.path.exists(dest):
+        os.mkdir(dest)
+        print dest+" is not found ... creating"
+
     sys.stdout.write("\n")
     ctr = 0
     for url in founds:
@@ -58,8 +58,8 @@ def downloadFile(url,ext,dist = './'):
         if index != -1:
             name = url[index+1:]
 
-        localpath = os.path.join(dist,name)
-        response = requests.get(url, stream=True) 
+        localpath = os.path.join(dest,name)
+        response = requests.get(url, stream=True)
 
         # change the localpath if it already exists
         copy = 0
@@ -84,7 +84,7 @@ def downloadFile(url,ext,dist = './'):
 def getReadableFileSize(bytes):
         if bytes < 1000:
             return str(bytes) + 'B'
-        
+
         units = ['kB','MB','GB','TB','PB','EB','ZB','YB']
         u = -1
 
@@ -92,7 +92,7 @@ def getReadableFileSize(bytes):
             bytes /= 1000
             u = u + 1
         return str(bytes) + units[u]
-  
+
 
 if __name__=='__main__':
     if len(sys.argv) == 3:
@@ -100,4 +100,4 @@ if __name__=='__main__':
     elif len(sys.argv) == 4:
         downloadFile(sys.argv[1],sys.argv[2],sys.argv[3])
     else:
-        print "Usage python downloader.py [url] [ext] [dist]"
+        print "Usage python downloader.py [url] [ext] [dest]"
